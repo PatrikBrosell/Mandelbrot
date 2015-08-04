@@ -1,0 +1,135 @@
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}     % För svenska bokstäver
+\usepackage[utf8]{inputenc}  % Teckenkodning UTF8
+\usepackage[swedish]{babel}  % För svensk avstavning och svenska
+                             % rubriker (t ex "Innehållsförteckning")
+\usepackage{fancyvrb}        % För programlistor med tabulatorer
+\fvset{tabsize=4}            % Tabulatorpositioner
+\fvset{fontsize=\small}      % Lagom storlek för programlistor
+
+\title{Mandelbrot \\
+	Inlämningsuppgift 2, Programmeringsteknik}
+\author{Fredrik Danebjer, D12 (dat12fda@student.lu.se)\\
+Patrik Brosell, D12 (dat12pbr@student.lu.se)}
+
+%\date{27 november 2012}        % Blir dagens datum om det utelämnas
+
+% *** Tillägg för denna rapport. ***
+% Paket:
+\usepackage{graphicx}         % För att inkludera bilder.
+
+% Kommandon i denna rapport
+\newcommand{\code}[1]{\texttt{#1}} % För programkod i text.
+% *** Slut på tillägg för denna rapport. ***
+
+\begin{document}              % Början på dokumentet
+
+\maketitle                    % Skriver ut rubriken som vi
+\thispagestyle{empty}         % definierade ovan med \title, \author
+                              % och eventuellt \date
+
+\newpage
+
+\section{Bakgrund}
+Mandelbrot är ett fraktal, vilket är anknutet till kaosteori. Ett fraktal innebär att man har en talföljd med ovanliga egenskaper, i detta fallet att dess mönster upprepar sig på olika sätt ut i oändligheten när man förstorar bilden (zoomar in) på Mandelbrotmängden. 
+En Mandelbrotföljd ska således ritas upp på ett komplext talplan MandelbrotGUI, och man ska kunna zooma in på denna talföljd för att studera dess upprepningar och egenskaper.
+
+\vspace{4 mm}
+Mandelbrotmängden definieras på följande vis:
+
+\vspace{3 mm}
+$z_{k} = z^2_{k-1} + c$
+\vspace{3 mm}
+
+$c =$ komplexa talet i punkten som beräknas för $D_{k} = [1, \infty[$
+
+$\infty$ kommer i programmet representeras av MAX\_ITERATIONS.
+
+$z_{0}$ är $0$, så $z_{1} = c$. Nästa z-värde blir $z_{2} = c^2 + c$, nästa igen 
+
+blir $z_{3} = c^4 + 2c^3 + c^2 + c$, och så vidare.
+
+Talet tillhör Mandelbrotmängden då:
+\vspace{3 mm}
+
+$|z_{k}| < 2$
+\vspace{3 mm}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[scale=0.3]{Mandelbrot1.pdf}
+\end{center}
+\caption{En bild av Mandelbrotmängden.}
+\label{Bild 1}
+\end{figure}
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.3]{Mandelbrot3.pdf}
+\end{center}
+\caption{En bild då man zoomat in på Mandelbrotmängden.}
+\label{Bild 2}
+\end{figure}
+\vspace{\baselineskip}
+Ett program som simulerar en Mandelbrotmängd av komplexa tal, och som sedan ritas upp i ett MandelbrotGUI \texttt{mGUI} med hjälp av en Generator \texttt{generator} skall skrivas.
+\texttt{Main-metoden} \texttt{Mandelbrot} fungerar som en medlare mellan \texttt{MandebrotGUI} och \texttt{Generator}.
+Man kan tänka sig \texttt{mGUI} som en avancerad och speciell variant av ett \texttt{SimpleWindow}, och på detta så ska ett lager av komplexa tal läggas. En algoritm skall avgöra om talen tillhör Mandelbrotmängden, och färglägga varje pixel för motsvarande komplext tal beroende på detta.
+
+
+\section{Modell}
+\vspace{7 mm}
+\begin{tabular}{lp{8cm}}
+\code{Mandelbrot} & Innehåller \code{main-metoden} som skapar \texttt{MandelbrotGUI}-objektet och \texttt{Generator}-objektet. Klassen fungerar sedan som en medlare mellan \texttt{MandelbrotGUI} kommandona (knappar och textruta) och \texttt{Generator}-klassen som exekverar dessa knappars funktioner.\\\\
+\code{Generator} & Beskriver en Mandelbrotmängd och metoden \texttt{Render}. Klassen skapar en vektor av komplexa tal och placerar ut dessa över fönstret.
+Beskriver också de färgskalor som används när man väljer att använda färger (och tolkar då innehållet i ''Extra''-rutan). I \texttt{Render} metoden så avgör denna klass också hur stora pixlar som skall ritas, beroende på vad man har valt för upplösning i fönstret.\\\\
+\code{Complex} & Beskriver  ett komplext tal, samt hur detta tal kan multipliceras och adderas.\\\\
+\code{MandelbrotGUI} & Beskriver ett fönster där Mandelbrotmängden skall ritas upp. Beskriver metoderna \texttt{zoom} och \texttt{reset}.
+\end{tabular}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.4]{Mandelbrotmap.pdf}
+\end{center}
+\caption{En bild som visar sambanden mellan klasserna.}
+\label{Bild 3}
+\end{figure}
+
+\vspace{\baselineskip}
+Simuleringen implementeras på så vis att klasserna \texttt{MandelbrotGUI} och \texttt{Generator} skapas i \texttt{main-metoden}.
+\texttt{main-metoden} fungerar som en medlare till \texttt{MandelbrotGUI} och \texttt{Generator}.
+ 
+Komplexa tal beskrivs av klassen \texttt{Complex}, och en matris av dessa skapas i \texttt{Generator} klassen. \texttt{Generator} klassen ansvarar sedan för att placera ut dessa komplexa tal, avgöra om dem tillhör Mandelbrotmängden, och svara till de ''commands'' som finns i \texttt{MandelbrotGUI}; tillexempel så beskrivs metoden \texttt{Render} i \texttt{Generator}, och knappen \texttt{Render} finns i MandelbrotGUI.
+Såfort ett ''command'' anropas via \texttt{MandelbrotGUI} så märker \texttt{main-metoden} om detta och talar om för generator klassen att det är dags att exekvera en viss sats.
+
+\begin{itemize}
+\item Vid start så skrivs instruktioner för ''Extra''-rutan i \code{MandelbrotGUI} ut i konsolen. 
+\code{MandelbrotGUI} öppnas och väntar på att man ska ge kommando via de knappar som finns i \code{MandelbrotGUI}. Då man anropar Render så skapas en matris av komplexa tal som "läggs" som ett lager ovanpå \texttt{mGUI}. Om man har zoomat in så kommer detta påverka de komplexa talens värde på planet (per logik).
+\texttt{Render} metoden avgör sedan för varje komplext tal om detta tillhör Mandelbrotmängden, och färgar sedan pixeln på motsvarande plats efter svaret.
+\item \texttt{Generator} klassen svarar med switchar emot övriga kommandon på \texttt{mGUI}; om upplösningen sänks så kommer det för varje komplext tal som beräknas färgas fler pixlar i dess omgivning. Per denna logik så beräknas inte varje komplext tal, utan hoppar över vissa för att låta motsvarande pixlar ingå i omgivningen.
+\item Om man väljer att använda färger så svarar \texttt{Generator} klassen på detta med en switch, beroende på vad man har skrivit i ''extra''-rutan så kommer lämplig färgskala placeras till \texttt{Render} metoden när pixlarna färgläggs.
+\\
+\section{Brister och kommentarer}
+Pågrund av minnesbrist så begränsas färgskalorna till en blanding av som mest två grundfärger. Om vi hade velat använda oss av ett fullt färgspektrum så hade detta lett till massiva beräkningar både för färgskalan och iterationsberäkningarna. Detta har att göra med att antalet färger måste gå hand i hand med antalet iterationer om man vill ha en effektiv bild med färger.
+Vill man använda samtliga färger och få detta att stämma överrens med färgskalan så krävs rotberäkningar, och detta kräver stora mängder minne.
+
+Vi har valt att använda ''Extra'' rutan för att ange vad för färger man vill använda. Man kan ange red, green, blue och få motsvarande färger, annars används en blå-grön färgskala. Vi anpassade iterationerna efter färgskalorna vi använde, och på det viset undgick vi rotberäkningar i programmet. Vi fann att en färgskala med blandningar av grönt och blått gav ett tydligt och vackert färgspektrum.
+
+\\
+\section{Programlistor}
+Klasserna finns i filer med samma namn som klasserna, till exempel finns klassen \code{Generator} i filen \code{Generator.java}.
+
+\subsection{\code{Mandelbrot}}
+
+% *** Observera: här ligger java-filerna i samma katalog som 
+% *** LaTeX-filen. Det är inte nödvändigt; man kan skriva ett
+% *** absolut filnamn (med sökvägen till java-filerna i ert
+% *** Eclipse-projekt).
+\VerbatimInput{Mandelbrot.java}
+
+\subsection{\code{Generator}}
+\VerbatimInput{Generator.java}
+
+\subsection{\code{Complex}}
+\VerbatimInput{Complex.java}
+
+\end{document}                  % Slut på dokumentet
